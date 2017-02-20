@@ -123,57 +123,40 @@ Please `previous-line' past org-block headers'"
 ;; useful because Org is now set up to prettify =\word=, with the corresponding latex
 ;; symbol, "\alpha" becomes α. Don't want to do this directly because it will
 ;; interferes with inline latex
-(define-abbrev-table 'org-abbrev-table    '(("alphaa" "\\alpha")
-                                            ("inf" "∞")
-                                            ("ar" "\\rightarrow")
-                                            ("lambdaa" "\\lambda")
-                                            ("sigmaa" "\\sigma")
-                                            ("rhoo" "\\rho")
-                                            ("betaa" "\\beta")
-                                            ("etaa" "\\eta")
-                                            ("deltaa" "\\delta")
-                                            ("epsilonn" "\\epsilon")
-                                            ("zetaa" "\\zeta")
-                                            ("thetaa" "\\theta")
-                                            ("iotaa" "\\iota")
-                                            ("kappaa" "\\kappa")
-                                            ("muu" "\\mu")
-                                            ("nuu" "\\nu")
-                                            ("xii" "\\xi")
-                                            ("omicronn" "\\omicron")
-                                            ("pii" "\\pi")
-                                            ("tauu" "\\tau")
-                                            ("upsilonn" "\\upsilon")
-                                            ("phii" "\\phi")
-                                            ("chii" "\\chi")
-                                            ("psii" "\\psi")
-                                            ("omegaa" "\\omega")
-                                            ;; Capitals
-                                            ("Alphaa" "\\Alpha")
-                                            ("Inf" "∞")
-                                            ("Ar" "\\Rightarrow")
-                                            ("Lambdaa" "\\Lambda")
-                                            ("Sigmaa" "\\Sigma")
-                                            ("Rhoo" "\\Rho")
-                                            ("Betaa" "\\Beta")
-                                            ("Etaa" "\\Etaa")
-                                            ("Deltaa" "\\Delta")
-                                            ("Epsilonn" "\\Epsilon")
-                                            ("Zetaa" "\\Zeta")
-                                            ("Thetaa" "\\Theta")
-                                            ("Iotaa" "\\Iota")
-                                            ("Kappaa" "\\Kappa")
-                                            ("Muu" "\\Mu")
-                                            ("Nuu" "\\Nu")
-                                            ("Xii" "\\Xi")
-                                            ("Omicronn" "\\Omicron")
-                                            ("Pii" "\\Pi")
-                                            ("Tauu" "\\Tau")
-                                            ("Upsilonn" "\\Upsilon")
-                                            ("Phii" "\\Phi")
-                                            ("Chii" "\\Chi")
-                                            ("Psii" "\\Psi")
-                                            ("Omegaa" "\\Omega")))
+
+(defun atchka-org--create-org-abbrev-table (latex-keywords)
+  "Produce an `abbrev-table' for org mode using LATEX-KEYWORDS.
+LATEX-KEYWORDS is a list of latex keywords without backslashes
+that orgmode also recognizes as the corresponding UTF-8 symbol.
+For example, '('alpha' 'beta') will return (('alphaa'
+'\alpha') ('Alphaa' '\Alpha') ('betaa' '\beta') \('Betaa'
+'Alpha')), the idea being that one types the symbol name with an
+extra character on the end, and abbrev will translate it to the
+corresponding latex keyword, which org-mdoe will render as the
+corresponding Unicode symbol."
+  (apply 'append
+         (mapcar
+          (lambda (word)
+            (mapcar
+             (lambda (word)
+               (list (concat word (car (last (split-string word "" t))))
+                     (concat "\\" word)))
+             (list word (capitalize word))))
+          latex-keywords)))
+
+(define-abbrev-table 'org-abbrev-table
+  (atchka-org--create-org-abbrev-table
+   '("alpha" "lambda" "sigma" "rho" "beta" "eta" "delta"
+     "epsilon" "zeta" "theta" "iota" "kappa" "mu" "nu"
+     "xi" "omicron" "pi" "tau" "upsilon" "phi" "chi" "psi"
+     "omega")))
+
+;;;###autoload
+(when load-file-name
+  (add-to-list 'custom-theme-load-path
+               (file-name-as-directory (file-name-directory load-file-name)))
+  (when (not window-system)
+    (custom-set-faces '(default ((t (:background nil)))))))
 
 (provide 'atchka-org)
 

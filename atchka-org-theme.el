@@ -24,6 +24,7 @@
        (org-agenda-font (cond ((x-list-fonts "Liberation Serif") '(:font "Liberation Serif"))
                               (nil (warn "No Agenda Font"))))
        (padding `(:line-width 5))
+       (current-line   "#1F1F1F")
        ;; Colors
        (cyan           "#66D9EF")
        (orange         "#FD971F")
@@ -33,8 +34,7 @@
        (violet         "#9C91E4")
        (yellow         "#E2C770")
        (magenta        "#F92672")
-       (grey-.5        "#828284")
-       (current-line   "#1F1F1F"))
+       (grey-.5        "#828284"))
   (custom-theme-set-faces
    'atchka-org
    `(org-tag                      ((,c (:foreground "#E2C770" :bold nil))))
@@ -93,14 +93,6 @@
 (setq org-src-block-faces
       (mapcar (lambda (lang) (list lang 'atchka-org-source-block-face))
               '("python" "ipython" "emacs-lisp" "R" "org" "example" "latex")))
-
-;;;###autoload
-(when load-file-name
-  (add-to-list 'custom-theme-load-path
-               (file-name-as-directory (file-name-directory load-file-name)))
-  (when (not window-system)
-    (custom-set-faces '(default ((t (:background nil)))))))
-
 
 (provide-theme 'atchka-org)
 
