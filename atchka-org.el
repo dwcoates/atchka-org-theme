@@ -39,32 +39,30 @@
 
 (defconst atchka--org-block-header-height 0.1 "Height for org block lines.")
 
-((when (require 'yasnippet nil t)
-   (defun yas--show-org-block-lines ()
-     "Enlarge block lines when in an Org buffer.
+(when (require 'yasnippet nil t)
+  (defun yas--show-org-block-lines ()
+    "Enlarge block lines when in an Org buffer.
 This is used to show hidden blocks in `org-mode' while expanding a snippet."
-     (interactive)
-     (when (and (boundp 'yas-minor-mode) (equal yas-minor-mode t))
-       (let ((s (buffer-substring-no-properties (line-beginning-position)
-                                                (point))))
-         (when
-             (member s (apply
-                        'append
-                        (mapcar
-                         (lambda (dir)
-                           (let ((dir
-                                  (concat (file-name-as-directory
-                                           (if (symbolp dir) (symbol-value dir) dir))
-                                          "org-mode")))
-                             (when (f-directory-p dir)
-                               (directory-files dir))))
-                         yas-snippet-dirs)))
-           (org-show-block-lines))))
-     )
+    (interactive)
+    (when (and (boundp 'yas-minor-mode) (equal yas-minor-mode t))
+      (let ((s (buffer-substring-no-properties
+                (line-beginning-position) (point))))
+        (when (member s
+                      (apply
+                       'append
+                       (mapcar
+                        (lambda (dir)
+                          (let ((dir (concat (file-name-as-directory
+                                              (if (symbolp dir) (symbol-value dir) dir))
+                                             "org-mode")))
+                            (when (f-directory-p dir)
+                              (directory-files dir))))
+                        yas-snippet-dirs)))
+          (org-show-block-lines)))))
 
-   (add-hook 'yas-before-expand-snippet-hook 'yas-show-org-block-lines)
-   (add-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines)
-   ))
+  (add-hook 'yas-before-expand-snippet-hook 'yas-show-org-block-lines)
+  (add-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines)
+  )
 
 (defun org-show-block-lines ()
   "Show the Org-block lines.
