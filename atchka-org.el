@@ -23,7 +23,7 @@
   (unless org-pretty-entities (org-toggle-pretty-entities))
   (setq org-pretty-entities-include-sub-superscripts t
         local-abbrev-table org-abbrev-table))
-(add-hook 'org-mode-hook 'atchka-org/pretty-symbols-org-mode-appearance-hook)
+(add-hook 'org-mode-hook 'atchka-org/pretty-symbols-org-mode-hook)
 
 ;; Makes source blocks in org look prettier, and generally, org documents should
 ;; never exceed 80 columns or so. I use M-q (fill-column) constantly to enforce
@@ -60,7 +60,7 @@ This is used to show hidden blocks in `org-mode' while expanding a snippet."
                         yas-snippet-dirs)))
           (org-show-block-lines)))))
 
-  (add-hook 'yas-before-expand-snippet-hook 'yas-show-org-block-lines)
+  (add-hook 'yas-before-expand-snippet-hook 'yas--show-org-block-lines)
   (add-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines)
   )
 
@@ -129,8 +129,8 @@ Please `previous-line' past org-block headers'"
 LATEX-KEYWORDS is a list of latex keywords without backslashes
 that orgmode also recognizes as the corresponding UTF-8 symbol.
 For example, '('alpha' 'beta') will return (('alphaa'
-'\alpha') ('Alphaa' '\Alpha') ('betaa' '\beta') \('Betaa'
-'Alpha')), the idea being that one types the symbol name with an
+'\\alpha') ('Alphaa' '\\Alpha') ('betaa' '\\beta') ('Betaa'
+'\\Beta')), the idea being that one types the symbol name with an
 extra character on the end, and abbrev will translate it to the
 corresponding latex keyword, which org-mdoe will render as the
 corresponding Unicode symbol."

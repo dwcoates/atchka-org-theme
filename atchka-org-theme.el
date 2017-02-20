@@ -12,7 +12,8 @@
 
 (defgroup atchka-org-faces nil
   "Open helm."
-  :prefix "atchka-org-" :group 'faces)
+  :prefix "atchka-org-"
+  :group 'faces)
 
 (let* ((c '((class color) (min-colors 89)))
        (bold   doom-enable-bold)
@@ -87,6 +88,7 @@
 (defface atchka-org-source-block-face
   '((((background dark)) :background "gray25")
     (((background light)) :foreground "SlateGray"))
+  "Face used for source block content"
   :group 'atchka-org-faces)
 
 ;; I don't know why this is still necessasry. I would like to get rid of it.
