@@ -1,4 +1,4 @@
-;;; atchka-theme --- A nice-looking way of presenting Org interactive programs
+;;; atchka-org-theme --- A nice-looking way of presenting Org interactive programs
 ;;
 ;;; Commentary:
 ;;
@@ -8,7 +8,9 @@
 
 (deftheme atchka "A dark theme.")
 
-(defconst atchka--org-block-header-height 0.1 "Height for org block lines.")
+(defgroup atchka-org-faces nil
+  "Open helm."
+  :prefix "atchka-org-" :group 'faces)
 
 ((let* ((c '((class color) (min-colors 89)))
         (bold   doom-enable-bold)
@@ -80,112 +82,15 @@
    )
  )
 
-(defun yas-show-org-block-lines ()
-  "Enlarge block lines when in an Org buffer.
-This is used to show hidden blocks in `org-mode' while expanding a snippet."
-  (interactive)
-  (when (and (boundp 'yas-minor-mode) (equal yas-minor-mode t))
-    (let ((s (buffer-substring-no-properties (line-beginning-position)
-                                             (point))))
-      (when
-        (member s (apply
-                   'append
-                   (mapcar
-                    (lambda (dir)
-                      (let ((dir
-                             (concat (file-name-as-directory
-                                      (if (symbolp dir) (symbol-value dir) dir))
-                                     "org-mode")))
-                      (when (f-directory-p dir)
-                          (directory-files dir))))
-                    yas-snippet-dirs)))
-        (org-show-block-lines)
-        ))))
-
-(when (require 'yasnippet nil t)
-  (add-hook 'yas-before-expand-snippet-hook 'yas-show-org-block-lines)
-  (add-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines))
-
-(defun org-show-block-lines ()
-  "Show the Org-block lines.
-This is useful because the atchka theme obfuscates block markup."
-  (interactive)
-  (set-face-attribute 'org-block-begin-line
-                      (selected-frame)
-                      :height 100
-                      :foreground "black")
-  )
-
-(defun org-hide-block-lines ()
-  "Hide the org block lines."
-  (interactive)
-  (set-face-attribute 'org-block-begin-line nil
-                      :height (truncate (* atchka--org-block-header-height 10))
-                      :foreground (face-attribute 'org-block-begin-line :background)))
-
-(global-set-key (kbd "C-c C-v C-;") 'org-show-block-lines)
-(global-set-key (kbd "C-c C-v C-:") 'org-hide-block-lines)
-
-(defun org-skip-source-next-advice ()
-  "Advice for the `next-line' function.
-Please `next-line' past org-block headers'"
-  (interactive)
-  (when (and (eq major-mode 'org-mode)
-             (save-excursion
-               (forward-line)
-               (call-interactively 'beginning-of-line)
-               (or
-                (re-search-forward "#\\+begin_src[ ]+?"
-                                   (line-end-position) t)
-                (re-search-forward "#\\+end_src[ ]*?"
-                                   (line-end-position) t))))
-    (forward-line))
-  )
-
-;(advice-remove 'next-line 'org-skip-source-next-advice)
-(advice-add 'next-line :before 'org-skip-source-next-advice)
-
-(defun org-skip-source-previous-advice ()
-  "Advice for the `previous-line' function.
-Please `previous-line' past org-block headers'"
-  (interactive)
-  (when (and
-         (eq major-mode 'org-mode)
-         (save-excursion
-          (forward-line -1)
-          (call-interactively 'beginning-of-line)
-          (or
-           (re-search-forward "#\\+begin_src[ ]+?"
-                              (line-end-position) t)
-           (re-search-forward "#\\+end_src[ ]*?"
-                              (line-end-position) t))))
-    (forward-line -1))
-  )
-
-;(advice-remove 'previous-line 'org-skip-source-previous-advice)
-(advice-add 'previous-line :before 'org-skip-source-previous-advice)
-
-
-;; Makes source blocks in org look prettier, and generally, org documents should
-;; never exceed 80 columns or so. I use M-q (fill-column) constantly to enforce
-;; this, which I think looks prettier and neater.
-(add-hook 'window-configuration-change-hook (lambda ()
-                                              (when (eq major-mode 'org-mode)
-                                               (set-window-fringes
-                                                (selected-window) 30 34))))
-
-;; This hides the asterisks in org headers, so they look like they are indented
-(setq org-hide-leading-stars t)
+(defface atchka-org-source-block-face
+  '((((background dark)) :background "gray25")
+    (((background light)) :foreground "SlateGray"))
+  :group 'atchka-org-faces)
 
 ;; I don't know why this is still necessasry. I would like to get rid of it.
 (setq org-src-block-faces
-      '(("python" (:background "gray25"))
-        ("ipython" (:background "gray25"))
-        ("emacs-lisp" (:background "gray25"))
-        ("R" (:background "gray25"))
-        ("org" (:background "gray25"))
-        ("example" (:background "gray25"))
-        ("latex" (:background "gray25"))))
+      (mapcar (lambda (lang) (list lang 'atchka-org-source-block-face))
+              '("python" "ipython" "emacs-lisp" "R" "org" "example" "latex")))
 
 ;;;###autoload
 (when load-file-name
@@ -195,6 +100,6 @@ Please `previous-line' past org-block headers'"
     (custom-set-faces '(default ((t (:background nil)))))))
 
 
-(provide-theme 'atchka-theme)
+(provide-theme 'atchka-org-theme)
 
-;;; atchka-theme ends here
+;;; atchka-org-theme ends here
