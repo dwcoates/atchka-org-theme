@@ -6,26 +6,30 @@
 ;;
 ;;; Code:
 
-((let ((c '((class color) (min-colors 89)))
-       (bold   doom-enable-bold)
-       (italic doom-enable-italic)
-       (sans-font (cond ((x-list-fonts "Lucida Grande") '(:font "Lucida Grande"))
-                        ((x-list-fonts "Verdana") '(:font "Verdana"))
-                        ((x-family-fonts "Sans Serif") '(:family "Sans Serif"))
-                        (nil (warn "Cannot find a Sans Serif Font."))))
-       (org-agenda-font (cond ((x-list-fonts "Liberation Serif") '(:font "Liberation Serif"))
-                              (nil (warn "No Agenda Font"))))
-       (padding `(:line-width 5))
-       ;; Colors
-       (cyan           "#66D9EF")
-       (orange         "#FD971F")
-       (grey           "#C0C5CF")
-       (grey-1         "#525254")
-       (green          "#B6E63E")
-       (violet         "#9C91E4")
-       (yellow         "#E2C770")
-       (magenta        "#F92672")
-       (grey-.5        "#828284"))
+(deftheme atchka "A dark theme.")
+
+(defconst atchka--org-block-header-height 0.1 "Height for org block lines.")
+
+((let* ((c '((class color) (min-colors 89)))
+        (bold   doom-enable-bold)
+        (italic doom-enable-italic)
+        (sans-font (cond ((x-list-fonts "Lucida Grande") '(:font "Lucida Grande"))
+                         ((x-list-fonts "Verdana") '(:font "Verdana"))
+                         ((x-family-fonts "Sans Serif") '(:family "Sans Serif"))
+                         (nil (warn "Cannot find a Sans Serif Font."))))
+        (org-agenda-font (cond ((x-list-fonts "Liberation Serif") '(:font "Liberation Serif"))
+                               (nil (warn "No Agenda Font"))))
+        (padding `(:line-width 5))
+        ;; Colors
+        (cyan           "#66D9EF")
+        (orange         "#FD971F")
+        (grey           "#C0C5CF")
+        (grey-1         "#525254")
+        (green          "#B6E63E")
+        (violet         "#9C91E4")
+        (yellow         "#E2C770")
+        (magenta        "#F92672")
+        (grey-.5        "#828284"))
    (custom-theme-set-faces
     'atchka
     `(org-tag                      ((,c (:foreground "#E2C770" :bold nil))))
@@ -73,7 +77,8 @@
     `(org-checkbox-statistics-todo ((,c (:inherit org-todo))))
     `(org-checkbox-statistics-done ((,c (:inherit org-done))))
     )
-)
+   )
+ )
 
 (defun yas-show-org-block-lines ()
   "Enlarge block lines when in an Org buffer.
