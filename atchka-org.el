@@ -119,18 +119,32 @@ Please `previous-line' past org-block headers'"
   )
 (advice-add 'previous-line :before 'org-skip-source-previous-advice)
 
-(defun atchka-org-visible-scalable-agenda-hook ()
-  (when (< (window-width) 90)
-    (text-scale-adjust -1.2)
-    )
-  nil)
-(add-hook 'org-agenda-mode-hook 'atchka-org-visible-scalable-agenda-hook)
+(defface atchka-org-agenda-small-font-face
+  '((t :height 85))
+  "Temporary buffer-local face")
 
-(defun foo ()
+(defvar atchka-org-agenda-window-width-threshold 80
+  "Window width at which org agenda shrinks its font.")
+
+(defun atchka-org--agenda-text-rescale ()
+  (if (< (window-width) atchka-org-agenda-window-width-threshold)
+      (buffer-face-set 'atchka-org-agenda-small-font-face)
+    (buffer-face-set 'default)
+      ))
+
+(defun atchka-org-toggle-agenda-text-rescale ()
   (interactive)
-  (print (window-width)))
+  (if (and (or
+            (member 'atchka-org--agenda-text-rescale 'window-configuration-change-hook)
+            (member 'atchka-org--agenda-text-rescale 'org-agenda-mode-hook))
+           (eq (major-mode) 'org-mode))
+      (progn
+        (add-hook 'org-agenda-mode-hook 'atchka-org--agenda-text-rescale)
+        (add-hook 'window-configuration-change-hook 'atchka-org--agenda-text-rescale))
+    (remove-hook 'org-agenda-mode-hook 'atchka-org--agenda-text-rescale)
+    (remove-hook 'window-configuration-change-hook 'atchka-org--agenda-text-rescale)))
 
-(global-set-key (kbd "C-c e z") 'foo)
+(atchka-org-toggle-agenda-text-rescale)
 
 ;; Abbreviations. The ~car~ of the list will be substitited for the ~cdr~.  This is
 ;; useful because Org is now set up to prettify =\word=, with the corresponding latex
