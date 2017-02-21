@@ -31,13 +31,13 @@
 (add-hook 'window-configuration-change-hook (lambda ()
                                               (when (eq major-mode 'org-mode)
                                                 (set-window-fringes
-                                                 (selected-window) 30 34))))
+                                                 (selected-window) 0 7))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;; ORG SOURCE BLOCKS ;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst atchka--org-block-header-height 0.1 "Height for org block lines.")
+(defconst zatchka--org-block-header-height 1 "Height for org block lines.")
 
 (when (require 'yasnippet nil t)
   (defun yas--show-org-block-lines ()

@@ -15,6 +15,23 @@
   :prefix "atchka-org-"
   :group 'faces)
 
+(defface atchka-org-block-lines-face
+  `((((background dark))
+     (:background "#00688b"
+      :foreground "#00688b"
+      :height ,atchka--org-block-header-height))
+    (((background light))
+     '(:background "#00688b"
+       :foreground "#00688b"
+       :height ,atchka--org-block-header-height)))
+  "Face used for source block content"
+  :group 'atchka-org-faces)
+
+(defface atchka-org-source-block-face
+  '((((background dark)) :color "gray25")
+    (((background light)) :color "SlateGray"))
+  :group 'atchka-org-faces)
+
 (let* ((c '((class color) (min-colors 89)))
        (bold   doom-enable-bold)
        (italic doom-enable-italic)
@@ -48,10 +65,11 @@
    `(org-archived                 ((,c (:foreground ,grey-.5))))
    `(org-document-title           ((,c (:inherit org-level-1 :height 1.5 :underline nil :box ,padding :foreground ,cyan))))
    ;; Org Source Code
-   `(org-block                    ((,c (:inherit 'shadow ) :background "gray30" :distant-foreground "white")))
-   `(org-block-background         ((,c (:background "gray25"))))
-   `(org-block-begin-line         ((,c (:background "SkyBlue4" :foreground "SkyBlue4"  :height ,atchka--org-block-header-height))))
-   `(org-block-end-line           ((,c (:inherit org-block-begin-line))))
+   `(org-block                    ((,c (:inherit atchka-org-source-block-face))))
+   `(org-block-background         ((,c (:inherit atchka-org-source-block-face))))
+   `(org-block-begin-line         ((,c (:inherit atchka-org-block-lines-face))))
+   `(org-block-end-line           ((,c (:inherit atchka-org-block-lines-face))))
+   ;; Embellishments
    `(org-code                     ((,c (:foreground "#cd5c5c"))))
    `(org-verbatim                 ((,c (:foreground ,green))))
    `(org-formula                  ((,c (:foreground ,cyan))))
@@ -85,16 +103,17 @@
    )
   )
 
-(defface atchka-org-source-block-face
-  '((((background dark)) :background "gray25")
-    (((background light)) :foreground "SlateGray"))
-  "Face used for source block content"
-  :group 'atchka-org-faces)
+(defvar atchka-org-babel-languages
+  '("asymptote" "C" "clojure" "css" "ditaa" "dot" "emacs-lisp" "gnuplot"
+    "haskell" "js" "latex" "ledger" "lisp" "matlab" "mscgen" "ob-doc-ocaml"
+    "octave" "oz" "perl" "plantuml" "python" "R" "ruby" "sass"
+    "scheme" "ob-doc-screen" "sh" "sql" "sqlite" "ipython" "org" "example"))
 
 ;; I don't know why this is still necessasry. I would like to get rid of it.
 (setq org-src-block-faces
       (mapcar (lambda (lang) (list lang 'atchka-org-source-block-face))
-              '("python" "ipython" "emacs-lisp" "R" "org" "example" "latex")))
+              atchka-org-babel-languages))
+
 
 (provide-theme 'atchka-org)
 
