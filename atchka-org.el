@@ -119,6 +119,19 @@ Please `previous-line' past org-block headers'"
   )
 (advice-add 'previous-line :before 'org-skip-source-previous-advice)
 
+(defun atchka-org-visible-scalable-agenda-hook ()
+  (when (< (window-width) 90)
+    (text-scale-adjust -1.2)
+    )
+  nil)
+(add-hook 'org-agenda-mode-hook 'atchka-org-visible-scalable-agenda-hook)
+
+(defun foo ()
+  (interactive)
+  (print (window-width)))
+
+(global-set-key (kbd "C-c e z") 'foo)
+
 ;; Abbreviations. The ~car~ of the list will be substitited for the ~cdr~.  This is
 ;; useful because Org is now set up to prettify =\word=, with the corresponding latex
 ;; symbol, "\alpha" becomes α. Don't want to do this directly because it will
