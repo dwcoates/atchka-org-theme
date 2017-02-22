@@ -28,8 +28,9 @@
   :group 'atchka-org-faces)
 
 (defface atchka-org-source-block-face
-  '((((background dark)) :color "gray25")
-    (((background light)) :color "SlateGray"))
+  '((((background dark)) :background "gray25")
+    (((background light)) :background "SlateGray"))
+  "`atchka-org' Org source block face"
   :group 'atchka-org-faces)
 
 (let* ((c '((class color) (min-colors 89)))

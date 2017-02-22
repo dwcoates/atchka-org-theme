@@ -28,16 +28,16 @@
 ;; Makes source blocks in org look prettier, and generally, org documents should
 ;; never exceed 80 columns or so. I use M-q (fill-column) constantly to enforce
 ;; this, which I think looks prettier and neater.
-(add-hook 'window-configuration-change-hook (lambda ()
-                                              (when (eq major-mode 'org-mode)
-                                                (set-window-fringes
-                                                 (selected-window) 0 7))))
+; (add-hook 'window-configuration-change-hook (lambda () }
+;                                               (when (eq major-mode 'org-mode) }
+;                                                 (set-window-fringes }
+;                                                  (selected-window) 0 7)))) }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;; ORG SOURCE BLOCKS ;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst zatchka--org-block-header-height 1 "Height for org block lines.")
+(defconst atchka--org-block-header-height 1 "Height for org block lines.")
 
 (when (require 'yasnippet nil t)
   (defun yas--show-org-block-lines ()
