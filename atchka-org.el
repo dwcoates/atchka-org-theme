@@ -48,7 +48,6 @@
   (unless org-pretty-entities (org-toggle-pretty-entities))
   (setq org-pretty-entities-include-sub-superscripts t
         local-abbrev-table org-abbrev-table))
-(add-hook 'org-mode-hook 'atchka-org/pretty-symbols-org-mode-hook)
 
 ;; Makes source blocks in org look prettier, and generally, org documents should
 ;; never exceed 80 columns or so. I use M-q (fill-column) constantly to enforce
@@ -81,11 +80,7 @@ This is used to show hidden blocks in `org-mode' while expanding a snippet."
                             (when (f-directory-p dir)
                               (directory-files dir))))
                         yas-snippet-dirs)))
-          (org-show-block-lines)))))
-
-  (add-hook 'yas-before-expand-snippet-hook 'yas--show-org-block-lines)
-  (add-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines)
-  )
+          (org-show-block-lines))))))
 
 (defun org-show-block-lines ()
   "Show the Org-block lines.
@@ -103,10 +98,6 @@ This is useful because the atchka theme obfuscates block markup."
                       :height (truncate (* atchka--org-block-header-height 10))
                       :foreground (face-attribute 'org-block-begin-line :background)))
 
-;; Default bindings
-(global-set-key (kbd "C-c C-v C-;") 'org-show-block-lines)
-(global-set-key (kbd "C-c C-v C-:") 'org-hide-block-lines)
-
 (defun org-skip-source-next-advice ()
   "Advice for the `next-line' function.
 Please `next-line' past org-block headers'"
@@ -121,8 +112,6 @@ Please `next-line' past org-block headers'"
                 (re-search-forward "#\\+end_src[ ]*?"
                                    (line-end-position) t))))
     (forward-line)))
-
-(advice-add 'next-line :before 'org-skip-source-next-advice)
 
 (defun org-skip-source-previous-advice ()
   "Advice for the `previous-line' function.
@@ -139,41 +128,6 @@ Please `previous-line' past org-block headers'"
            (re-search-forward "#\\+end_src[ ]*?"
                               (line-end-position) t))))
     (forward-line -1)))
-(advice-add 'previous-line :before 'org-skip-source-previous-advice)
-
-(defvar protect-faces-priority 9999)
-
-(define-minor-mode protect-faces-mode
-  "Make faces immune to distractions from overlays by using more overlays."
-  nil nil nil
-  (cond (protect-faces-mode
-         (unless font-lock-mode
-           (user-error "Enable font-lock mode first"))
-         (add-hook 'jit-lock-functions #'protect-faces-region 'append t)
-         (save-excursion
-           (protect-faces-region (point-min) (point-max))))
-        (t
-         (remove-overlays 1 (point-max)'protect-faces t)
-         (jit-lock-unregister #'protect-faces-region))))
-
-(defun protect-faces-region (begin end)
-  (interactive "r")
-  (remove-overlays begin end 'protect-faces t)
-  (goto-char begin)
-  (while (< (point) end)
-    (let ((face (get-text-property (point) 'face))
-          (next (next-single-property-change (point) 'face nil end)))
-      (cond
-       ((memqr face '(org-block-begin-line
-                      org-block-end-line
-                      atchka-org-source-block-face))
-        (let ((ov (make-overlay (point) next)))
-          (overlay-put ov 'priority protect-faces-priority)
-          (overlay-put ov 'protect-faces t)
-          (overlay-put
-           ov 'face 'atchka-org-block-lines-face)))
-       (t nil))
-      (goto-char next))))
 
 (defface atchka-org-agenda-small-font-face
   '((t :height 85))
@@ -202,6 +156,60 @@ Please `previous-line' past org-block headers'"
 
 (atchka-org-toggle-agenda-text-rescale)
 
+
+(defun protect-faces-region (begin end)
+  (interactive "r")
+  (remove-overlays begin end 'protect-faces t)
+  (goto-char begin)
+  (while (< (point) end)
+    (let ((face (get-text-property (point) 'face))
+          (next (next-single-property-change (point) 'face nil end)))
+      (cond
+       ((memqr face '(org-block-begin-line
+                      org-block-end-line
+                      atchka-org-source-block-face))
+        (let ((ov (make-overlay (point) next)))
+          (overlay-put ov 'priority 9999)
+          (overlay-put ov 'protect-faces t)
+          (overlay-put
+           ov 'face 'atchka-org-block-lines-face)))
+       (t nil))
+      (goto-char next))))
+
+(define-minor-mode atchka-org-mode
+  "Minor mode for improving org-mode source code appearance."
+  :group 'atchka
+  :lighter " atchka"
+  :keymap `(((kbd "C-c C-v C-;") . org-show-block-lines)
+            ((kbd "C-c C-v C-:") . org-hide-block-lines))
+  (if atchka-org-mode
+      ;; yasnippet
+      (progn
+        (when (require 'yasnippet nil t)
+          (remove-hook 'yas-before-expand-snippet-hook 'yas--show-org-block-lines)
+          (remove-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines))
+        ;; pretty
+        (remove-hook 'org-mode-hook 'atchka-org/pretty-symbols-org-mode-hook)
+        ;; next/prev line
+        (advice-remove 'next-line 'org-skip-source-next-advice)
+        (advice-remove 'previous-line 'org-skip-source-previous-advice)
+        ;; font
+        (remove-overlays 1 (point-max)'protect-faces t)
+        (jit-lock-unregister #'protect-faces-region))
+    ;; yasnippet
+    (when (require 'yasnippet nil t)
+      (add-hook 'yas-before-expand-snippet-hook 'yas--show-org-block-lines)
+      (add-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines))
+    ;; pretty
+    (add-hook 'org-mode-hook 'atchka-org/pretty-symbols-org-mode-hook)
+    ;; next/prev line
+    (advice-add 'next-line :before 'org-skip-source-next-advice)
+    (advice-add 'previous-line :before 'org-skip-source-previous-advice)
+    ;; fonts
+    (add-hook 'jit-lock-functions #'protect-faces-region 'append t)
+    (save-excursion
+      (protect-faces-region (point-min) (point-max)))
+    ))
 
 
 ;; Abbreviations. The ~car~ of the list will be substitited for the ~cdr~.  This is
