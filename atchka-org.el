@@ -8,6 +8,30 @@
 
 (require 'org)
 
+(defgroup atchka-org-faces nil
+  "Open helm."
+  :prefix "atchka-org-"
+  :group 'faces)
+
+(defface atchka-org-block-lines-face
+  `((((background dark))
+     (:background "#00688b"
+                  :foreground "#00688b"
+                  :height ,atchka--org-block-header-height))
+    (((background light))
+     '(:background "#00688b"
+                   :foreground "#00688b"
+                   :height ,atchka--org-block-header-height)))
+  "Face used for source block content"
+  :group 'atchka-org-faces)
+
+(defface atchka-org-source-block-face
+  '((((background dark)) :background "gray25")
+    (((background light)) :background "SlateGray"))
+  "`atchka-org' Org source block face"
+  :group 'atchka-org-faces)
+
+
 ;; Markup
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5)
       org-hide-emphasis-markers t
@@ -115,9 +139,42 @@ Please `previous-line' past org-block headers'"
                               (line-end-position) t)
            (re-search-forward "#\\+end_src[ ]*?"
                               (line-end-position) t))))
-    (forward-line -1))
-  )
+    (forward-line -1)))
 (advice-add 'previous-line :before 'org-skip-source-previous-advice)
+
+(defvar protect-faces-priority 9999)
+
+(define-minor-mode protect-faces-mode
+  "Make faces immune to distractions from overlays by using more overlays."
+  nil nil nil
+  (cond (protect-faces-mode
+         (unless font-lock-mode
+           (user-error "Enable font-lock mode first"))
+         (add-hook 'jit-lock-functions #'protect-faces-region 'append t)
+         (save-excursion
+           (protect-faces-region (point-min) (point-max))))
+        (t
+         (remove-overlays 1 (point-max)'protect-faces t)
+         (jit-lock-unregister #'protect-faces-region))))
+
+(defun protect-faces-region (begin end)
+  (interactive "r")
+  (remove-overlays begin end 'protect-faces t)
+  (goto-char begin)
+  (while (< (point) end)
+    (let ((face (get-text-property (point) 'face))
+          (next (next-single-property-change (point) 'face nil end)))
+      (cond
+       ((memqr face '(org-block-begin-line
+                      org-block-end-line
+                      atchka-org-source-block-face))
+        (let ((ov (make-overlay (point) next)))
+          (overlay-put ov 'priority protect-faces-priority)
+          (overlay-put ov 'protect-faces t)
+          (overlay-put
+           ov 'face 'atchka-org-block-lines-face)))
+       (t nil))
+      (goto-char next))))
 
 (defface atchka-org-agenda-small-font-face
   '((t :height 85))
@@ -145,6 +202,8 @@ Please `previous-line' past org-block headers'"
     (remove-hook 'window-configuration-change-hook 'atchka-org--agenda-text-rescale)))
 
 (atchka-org-toggle-agenda-text-rescale)
+
+
 
 ;; Abbreviations. The ~car~ of the list will be substitited for the ~cdr~.  This is
 ;; useful because Org is now set up to prettify =\word=, with the corresponding latex
