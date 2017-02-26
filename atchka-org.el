@@ -164,9 +164,8 @@ Please `previous-line' past org-block headers'"
     (let ((face (get-text-property (point) 'face))
           (next (next-single-property-change (point) 'face nil end)))
       (cond
-       ((memqr face '(org-block-begin-line
-                      org-block-end-line
-                      atchka-org-source-block-face))
+       ((memq face '(org-block-begin-line
+                     org-block-end-line))
         (let ((ov (make-overlay (point) next)))
           (overlay-put ov 'priority protect-faces-priority)
           (overlay-put ov 'protect-faces t)
