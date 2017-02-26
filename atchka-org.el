@@ -26,9 +26,11 @@
   :group 'atchka-org-faces)
 
 (defface atchka-org-source-block-face
-  '((((background dark)) :color "gray25")
-    (((background light)) :color "SlateGray"))
+  '((((background dark)) :background "gray25")
+    (((background light)) :background "SlateGray"))
+  "`atchka-org' Org source block face"
   :group 'atchka-org-faces)
+
 
 ;; Markup
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5)
@@ -50,16 +52,16 @@
 ;; Makes source blocks in org look prettier, and generally, org documents should
 ;; never exceed 80 columns or so. I use M-q (fill-column) constantly to enforce
 ;; this, which I think looks prettier and neater.
-(add-hook 'window-configuration-change-hook (lambda ()
-                                              (when (eq major-mode 'org-mode)
-                                                (set-window-fringes
-                                                 (selected-window) 0 7))))
+; (add-hook 'window-configuration-change-hook (lambda () }
+;                                               (when (eq major-mode 'org-mode) }
+;                                                 (set-window-fringes }
+;                                                  (selected-window) 0 7)))) }
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;; ORG SOURCE BLOCKS ;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defconst zatchka--org-block-header-height 1 "Height for org block lines.")
+(defconst atchka--org-block-header-height 1 "Height for org block lines.")
 
 (when (require 'yasnippet nil t)
   (defun yas--show-org-block-lines ()
@@ -137,9 +139,71 @@ Please `previous-line' past org-block headers'"
                               (line-end-position) t)
            (re-search-forward "#\\+end_src[ ]*?"
                               (line-end-position) t))))
-    (forward-line -1))
-  )
+    (forward-line -1)))
 (advice-add 'previous-line :before 'org-skip-source-previous-advice)
+
+(defvar protect-faces-priority 9999)
+
+(define-minor-mode protect-faces-mode
+  "Make faces immune to distractions from overlays by using more overlays."
+  nil nil nil
+  (cond (protect-faces-mode
+         (unless font-lock-mode
+           (user-error "Enable font-lock mode first"))
+         (add-hook 'jit-lock-functions #'protect-faces-region 'append t)
+         (save-excursion
+           (protect-faces-region (point-min) (point-max))))
+        (t
+         (remove-overlays 1 (point-max)'protect-faces t)
+         (jit-lock-unregister #'protect-faces-region))))
+
+(defun protect-faces-region (begin end)
+  (interactive "r")
+  (remove-overlays begin end 'protect-faces t)
+  (goto-char begin)
+  (while (< (point) end)
+    (let ((face (get-text-property (point) 'face))
+          (next (next-single-property-change (point) 'face nil end)))
+      (cond
+       ((memqr face '(org-block-begin-line
+                      org-block-end-line
+                      atchka-org-source-block-face))
+        (let ((ov (make-overlay (point) next)))
+          (overlay-put ov 'priority protect-faces-priority)
+          (overlay-put ov 'protect-faces t)
+          (overlay-put
+           ov 'face 'atchka-org-block-lines-face)))
+       (t nil))
+      (goto-char next))))
+
+(defface atchka-org-agenda-small-font-face
+  '((t :height 85))
+  "Temporary buffer-local face")
+
+(defvar atchka-org-agenda-window-width-threshold 80
+  "Window width at which org agenda shrinks its font.")
+
+(defun atchka-org--agenda-text-rescale ()
+  (if (< (window-width) atchka-org-agenda-window-width-threshold)
+      (buffer-face-set 'atchka-org-agenda-small-font-face)
+    (buffer-face-set 'default)
+      ))
+
+(defun atchka-org-toggle-agenda-text-rescale ()
+  (interactive)
+  (if (and (or
+            (member 'atchka-org--agenda-text-rescale 'window-configuration-change-hook)
+            (member 'atchka-org--agenda-text-rescale 'org-agenda-mode-hook))
+           (eq (major-mode) 'org-mode))
+      (progn
+        (add-hook 'org-agenda-mode-hook 'atchka-org--agenda-text-rescale)
+        (add-hook 'window-configuration-change-hook 'atchka-org--agenda-text-rescale))
+    (remove-hook 'org-agenda-mode-hook 'atchka-org--agenda-text-rescale)
+    (remove-hook 'window-configuration-change-hook 'atchka-org--agenda-text-rescale)))
+
+(atchka-org-toggle-agenda-text-rescale)
+
+
 
 ;; Abbreviations. The ~car~ of the list will be substitited for the ~cdr~.  This is
 ;; useful because Org is now set up to prettify =\word=, with the corresponding latex
