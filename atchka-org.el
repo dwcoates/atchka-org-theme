@@ -8,6 +8,8 @@
 
 (require 'org)
 
+(defconst atchka--org-block-header-height 1 "Height for org block lines.")
+
 (defgroup atchka-org-faces nil
   "Open helm."
   :prefix "atchka-org-"
@@ -30,7 +32,6 @@
     (((background light)) :background "SlateGray"))
   "`atchka-org' Org source block face"
   :group 'atchka-org-faces)
-
 
 ;; Markup
 (setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5)
@@ -60,8 +61,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;; ORG SOURCE BLOCKS ;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defconst atchka--org-block-header-height 1 "Height for org block lines.")
 
 (when (require 'yasnippet nil t)
   (defun yas--show-org-block-lines ()
