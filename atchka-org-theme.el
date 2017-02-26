@@ -10,28 +10,6 @@
 
 (deftheme atchka-org "A dark theme for org-mode.")
 
-(defgroup atchka-org-faces nil
-  "Open helm."
-  :prefix "atchka-org-"
-  :group 'faces)
-
-(defface atchka-org-block-lines-face
-  `((((background dark))
-     (:background "#00688b"
-      :foreground "#00688b"
-      :height ,atchka--org-block-header-height))
-    (((background light))
-     '(:background "#00688b"
-       :foreground "#00688b"
-       :height ,atchka--org-block-header-height)))
-  "Face used for source block content"
-  :group 'atchka-org-faces)
-
-(defface atchka-org-source-block-face
-  '((((background dark)) :color "gray25")
-    (((background light)) :color "SlateGray"))
-  :group 'atchka-org-faces)
-
 (let* ((c '((class color) (min-colors 89)))
        (bold   doom-enable-bold)
        (italic doom-enable-italic)
