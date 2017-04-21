@@ -154,9 +154,6 @@ Please `previous-line' past org-block headers'"
     (remove-hook 'org-agenda-mode-hook 'atchka-org--agenda-text-rescale)
     (remove-hook 'window-configuration-change-hook 'atchka-org--agenda-text-rescale)))
 
-(atchka-org-toggle-agenda-text-rescale)
-
-
 (defun protect-faces-region (begin end)
   (interactive "r")
   (remove-overlays begin end 'protect-faces t)
