@@ -43,10 +43,6 @@
    `(org-archived                 ((,c (:foreground ,grey-.5))))
    `(org-document-title           ((,c (:inherit org-level-1 :height 1.5 :underline nil :box ,padding :foreground ,cyan))))
    ;; Org Source Code
-   `(org-block                    ((,c (:inherit atchka-org-source-block-face))))
-   `(org-block-background         ((,c (:inherit atchka-org-source-block-face))))
-   `(org-block-begin-line         ((,c (:inherit atchka-org-block-lines-face))))
-   `(org-block-end-line           ((,c (:inherit atchka-org-block-lines-face))))
    ;; Embellishments
    `(org-code                     ((,c (:foreground "#cd5c5c"))))
    `(org-verbatim                 ((,c (:foreground ,green))))

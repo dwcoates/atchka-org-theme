@@ -173,41 +173,37 @@ Please `previous-line' past org-block headers'"
        (t nil))
       (goto-char next))))
 
-(define-minor-mode atchka-org-mode
+(define-minor-mode atchka-org-minor-mode
   "Minor mode for improving org-mode source code appearance."
-  :group 'atchka
+  :init-value nil
   :lighter " atchka"
   :keymap `(((kbd "C-c C-v C-;") . org-show-block-lines)
             ((kbd "C-c C-v C-:") . org-hide-block-lines))
-  (if atchka-org-mode
-      ;; yasnippet
-      (progn
-        (when (require 'yasnippet nil t)
-          (remove-hook 'yas-before-expand-snippet-hook 'yas--show-org-block-lines)
-          (remove-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines))
-        ;; pretty
-        (remove-hook 'org-mode-hook 'atchka-org/pretty-symbols-org-mode-hook)
-        ;; next/prev line
-        (advice-remove 'next-line 'org-skip-source-next-advice)
-        (advice-remove 'previous-line 'org-skip-source-previous-advice)
-        ;; font
-        (remove-overlays 1 (point-max)'protect-faces t)
-        (jit-lock-unregister #'protect-faces-region))
-    ;; yasnippet
-    (when (require 'yasnippet nil t)
-      (add-hook 'yas-before-expand-snippet-hook 'yas--show-org-block-lines)
-      (add-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines))
-    ;; pretty
-    (add-hook 'org-mode-hook 'atchka-org/pretty-symbols-org-mode-hook)
-    ;; next/prev line
-    (advice-add 'next-line :before 'org-skip-source-next-advice)
-    (advice-add 'previous-line :before 'org-skip-source-previous-advice)
-    ;; fonts
-    (add-hook 'jit-lock-functions #'protect-faces-region 'append t)
-    (save-excursion
-      (protect-faces-region (point-min) (point-max)))
-    ))
-
+  (cond (atchka-org-minor-mode
+         ;; yasnippet
+         (add-hook 'yas-before-expand-snippet-hook 'yas--show-org-block-lines t)
+         (add-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines t)
+         ;; pretty
+         (add-hook 'org-mode-hook 'atchka-org/pretty-symbols-org-mode-hook)
+         ;; next/prev line
+         (advice-add 'next-line :before 'org-skip-source-next-advice)
+         (advice-add 'previous-line :before 'org-skip-source-previous-advice)
+         (set-face-attribute 'org-block nil :inherit 'atchka-org-source-block-face)
+         (set-face-attribute 'org-block-begin-line nil :inherit 'atchka-org-block-lines-face)
+         (set-face-attribute 'org-block-end-line nil :inherit 'atchka-org-block-lines-face))
+        (t
+         ;; yasnippet
+         (when (require 'yasnippet nil t)
+           (remove-hook 'yas-before-expand-snippet-hook 'yas--show-org-block-lines)
+           (remove-hook 'yas-after-exit-snippet-hook 'org-hide-block-lines))
+         ;; pretty
+         (remove-hook 'org-mode-hook 'atchka-org/pretty-symbols-org-mode-hook)
+         ;; next/prev line
+         (advice-remove 'next-line 'org-skip-source-next-advice)
+         (advice-remove 'previous-line 'org-skip-source-previous-advice)
+         (set-face-attribute 'org-block nil :inherit nil)
+         (set-face-attribute 'org-block-begin-line nil :inherit nil)
+         (set-face-attribute 'org-block-end-line nil :inherit nil))))
 
 ;; Abbreviations. The ~car~ of the list will be substitited for the ~cdr~.  This is
 ;; useful because Org is now set up to prettify =\word=, with the corresponding latex
