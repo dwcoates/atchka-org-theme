@@ -6,8 +6,6 @@
 ;;
 ;;; Code:
 
-(require 'atchka-org)
-
 (deftheme atchka-org "A dark theme for org-mode.")
 
 (let* ((c '((class color) (min-colors 89)))
