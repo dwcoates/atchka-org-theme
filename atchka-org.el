@@ -33,11 +33,13 @@
   "`atchka-org' Org source block face"
   :group 'atchka-org-faces)
 
-;; Markup
-(setq org-format-latex-options (plist-put org-format-latex-options :scale 1.5)
-      org-hide-emphasis-markers t
-      org-hidden-keywords '(title)
-      org-hide-leading-stars t)
+(defvar atchka-org-babel-languages
+  '("asymptote" "C" "clojure" "css" "ditaa" "dot" "emacs-lisp" "gnuplot"
+    "haskell" "js" "latex" "ledger" "lisp" "matlab" "mscgen" "ob-doc-ocaml"
+    "octave" "oz" "perl" "plantuml" "python" "R" "ruby" "sass"
+    "scheme" "ob-doc-screen" "sh" "sql" "sqlite" "ipython" "org" "example"))
+
+(defvar atchka-org-src-block-faces-backup org-src-block-faces)
 
 ;; Source block content
 (setq org-src-fontify-natively t     ; syntax highlighting in source blocks
@@ -115,31 +117,6 @@ Please `previous-line' past org-block headers'"
                               (line-end-position) t))))
     (forward-line -1)))
 
-(defface atchka-org-agenda-small-font-face
-  '((t :height 85))
-  "Temporary buffer-local face")
-
-(defvar atchka-org-agenda-window-width-threshold 80
-  "Window width at which org agenda shrinks its font.")
-
-(defun atchka-org--agenda-text-rescale ()
-  (if (< (window-width) atchka-org-agenda-window-width-threshold)
-      (buffer-face-set 'atchka-org-agenda-small-font-face)
-    (buffer-face-set 'default)
-      ))
-
-(defun atchka-org-toggle-agenda-text-rescale ()
-  (interactive)
-  (if (and (or
-            (member 'atchka-org--agenda-text-rescale 'window-configuration-change-hook)
-            (member 'atchka-org--agenda-text-rescale 'org-agenda-mode-hook))
-           (eq (major-mode) 'org-mode))
-      (progn
-        (add-hook 'org-agenda-mode-hook 'atchka-org--agenda-text-rescale)
-        (add-hook 'window-configuration-change-hook 'atchka-org--agenda-text-rescale))
-    (remove-hook 'org-agenda-mode-hook 'atchka-org--agenda-text-rescale)
-    (remove-hook 'window-configuration-change-hook 'atchka-org--agenda-text-rescale)))
-
 (defun protect-faces-region (begin end)
   (interactive "r")
   (remove-overlays begin end 'protect-faces t)
@@ -176,7 +153,11 @@ Please `previous-line' past org-block headers'"
          (advice-add 'previous-line :before 'org-skip-source-previous-advice)
          (set-face-attribute 'org-block nil :inherit 'atchka-org-source-block-face)
          (set-face-attribute 'org-block-begin-line nil :inherit 'atchka-org-block-lines-face)
-         (set-face-attribute 'org-block-end-line nil :inherit 'atchka-org-block-lines-face))
+         (set-face-attribute 'org-block-end-line nil :inherit 'atchka-org-block-lines-face)
+         ;; I don't know why this is still necessasry. I would like to get rid of it.
+         (setq org-src-block-faces
+               (mapcar (lambda (lang) (list lang 'atchka-org-source-block-face))
+                       atchka-org-babel-languages)))
         (t
          ;; yasnippet
          (when (require 'yasnippet nil t)
@@ -189,39 +170,9 @@ Please `previous-line' past org-block headers'"
          (advice-remove 'previous-line 'org-skip-source-previous-advice)
          (set-face-attribute 'org-block nil :inherit nil)
          (set-face-attribute 'org-block-begin-line nil :inherit nil)
-         (set-face-attribute 'org-block-end-line nil :inherit nil))))
+         (set-face-attribute 'org-block-end-line nil :inherit nil)
+         (setq org-src-block-faces atchka-org-src-block-faces-backup))))
 
-;; Abbreviations. The ~car~ of the list will be substitited for the ~cdr~.  This is
-;; useful because Org is now set up to prettify =\word=, with the corresponding latex
-;; symbol, "\alpha" becomes α. Don't want to do this directly because it will
-;; interferes with inline latex
-
-(defun atchka-org--create-org-abbrev-table (latex-keywords)
-  "Produce an `abbrev-table' for org mode using LATEX-KEYWORDS.
-LATEX-KEYWORDS is a list of latex keywords without backslashes
-that orgmode also recognizes as the corresponding UTF-8 symbol.
-For example, '('alpha' 'beta') will return (('alphaa'
-'\\alpha') ('Alphaa' '\\Alpha') ('betaa' '\\beta') ('Betaa'
-'\\Beta')), the idea being that one types the symbol name with an
-extra character on the end, and abbrev will translate it to the
-corresponding latex keyword, which org-mdoe will render as the
-corresponding Unicode symbol."
-  (apply 'append
-         (mapcar
-          (lambda (word)
-            (mapcar
-             (lambda (word)
-               (list (concat word (car (last (split-string word "" t))))
-                     (concat "\\" word)))
-             (list word (capitalize word))))
-          latex-keywords)))
-
-(define-abbrev-table 'org-abbrev-table
-  (atchka-org--create-org-abbrev-table
-   '("alpha" "lambda" "sigma" "rho" "beta" "eta" "delta"
-     "epsilon" "zeta" "theta" "iota" "kappa" "mu" "nu"
-     "xi" "omicron" "pi" "tau" "upsilon" "phi" "chi" "psi"
-     "omega")))
 
 ;;;###autoload
 (when load-file-name
