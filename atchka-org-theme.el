@@ -73,6 +73,13 @@
    `(org-checkbox-statistics-todo ((,c (:inherit org-todo))))
    `(org-checkbox-statistics-done ((,c (:inherit org-done))))))
 
+;;;###autoload
+(when load-file-name
+  (add-to-list 'custom-theme-load-path
+               (file-name-as-directory (file-name-directory load-file-name)))
+  (when (not window-system)
+    (custom-set-faces '(default ((t (:background nil)))))))
+
 (provide-theme 'atchka-org)
 
 ;;; atchka-org-theme ends here
