@@ -73,21 +73,7 @@
    `(org-headline-done            ((,c (:foreground ,grey-.5 :strike-through t :bold nil))))
    `(org-special-keyword          ((,c (:foreground ,magenta))))
    `(org-checkbox-statistics-todo ((,c (:inherit org-todo))))
-   `(org-checkbox-statistics-done ((,c (:inherit org-done))))
-   )
-  )
-
-(defvar atchka-org-babel-languages
-  '("asymptote" "C" "clojure" "css" "ditaa" "dot" "emacs-lisp" "gnuplot"
-    "haskell" "js" "latex" "ledger" "lisp" "matlab" "mscgen" "ob-doc-ocaml"
-    "octave" "oz" "perl" "plantuml" "python" "R" "ruby" "sass"
-    "scheme" "ob-doc-screen" "sh" "sql" "sqlite" "ipython" "org" "example"))
-
-;; I don't know why this is still necessasry. I would like to get rid of it.
-(setq org-src-block-faces
-      (mapcar (lambda (lang) (list lang 'atchka-org-source-block-face))
-              atchka-org-babel-languages))
-
+   `(org-checkbox-statistics-done ((,c (:inherit org-done))))))
 
 (provide-theme 'atchka-org)
 
