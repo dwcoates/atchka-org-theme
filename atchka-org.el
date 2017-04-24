@@ -43,20 +43,6 @@
 (setq org-src-fontify-natively t     ; syntax highlighting in source blocks
       org-src-tab-acts-natively t)   ; expected tabbing in source block
 
-;; Pretty symbols
-(defun atchka-org/pretty-symbols-org-mode-hook ()
-  (unless org-pretty-entities (org-toggle-pretty-entities))
-  (setq org-pretty-entities-include-sub-superscripts t
-        local-abbrev-table org-abbrev-table))
-
-;; Makes source blocks in org look prettier, and generally, org documents should
-;; never exceed 80 columns or so. I use M-q (fill-column) constantly to enforce
-;; this, which I think looks prettier and neater.
-; (add-hook 'window-configuration-change-hook (lambda () }
-;                                               (when (eq major-mode 'org-mode) }
-;                                                 (set-window-fringes }
-;                                                  (selected-window) 0 7)))) }
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;;;;;; ORG SOURCE BLOCKS ;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
