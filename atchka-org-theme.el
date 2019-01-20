@@ -9,8 +9,6 @@
 (deftheme atchka-org "A dark theme for org-mode.")
 
 (let* ((c '((class color) (min-colors 89)))
-       (bold   doom-enable-bold)
-       (italic doom-enable-italic)
        (sans-font (cond ((x-list-fonts "Lucida Grande") '(:font "Lucida Grande"))
                         ((x-list-fonts "Verdana") '(:font "Verdana"))
                         ((x-family-fonts "Sans Serif") '(:family "Sans Serif"))
